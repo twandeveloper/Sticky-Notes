@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 
 import { v4 as uuidv4 } from "uuid";
+import { BrowserRouter as Router, Route } from "react-router-dom";
+import { Row } from "reactstrap";
 
 import Button from "../../UI/Button/AddButton";
 import Modal from "../../UI/Modal/FormModal";
-
-import { Row } from "reactstrap";
+import Login from "../../components/Login/Login";
 
 import classes from "./Desk.module.css";
 import Notes from "../../components/Note/Note";
@@ -86,11 +87,16 @@ const Desk = () => {
   );
 
   return (
-    <div className={classes.Desk}>
-      <Row>{stickyNotes}</Row>
-      {modalForm}
-      <Button addNote={toggleModalHandler} />
-    </div>
+    <Router>
+      <div className={classes.Desk}>
+        <Route path="/login" component={Login} />
+        <Route path="/notes">
+          <Row>{stickyNotes}</Row>
+          {modalForm}
+          <Button addNote={toggleModalHandler} />
+        </Route>
+      </div>
+    </Router>
   );
 };
 
