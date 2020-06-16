@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { v4 as uuidv4 } from "uuid";
 import { BrowserRouter as Router, Route } from "react-router-dom";
@@ -7,33 +7,20 @@ import { Row } from "reactstrap";
 import Button from "../../UI/Button/AddButton";
 import Modal from "../../UI/Modal/FormModal";
 import Login from "../../components/Login/Login";
+import Notes from "../../components/Note/Note";
+import Navigation from "../../UI/Nav/Navigation";
 
 import classes from "./Desk.module.css";
-import Notes from "../../components/Note/Note";
 
 const Desk = () => {
-  const [notes, setNotes] = useState([
-    {
-      noteId: 1,
-      noteTitle: "Note 1",
-      noteText: "This is my first note",
-    },
-    {
-      noteId: 2,
-      noteTitle: "Note 2",
-      noteText: "This is my second note",
-    },
-    {
-      noteId: 3,
-      noteTitle: "Note 3",
-      noteText: "This is my third note",
-    },
-    {
-      noteId: 4,
-      noteTitle: "Note 4",
-      noteText: "This is my fourth note",
-    },
-  ]);
+  const [notes, setNotes] = useState([]);
+
+  useEffect(() => {
+    fetch("/user/notes")
+      .then((res) => res.json())
+      .then((stickNotes) => setNotes(stickNotes));
+  }, []);
+
   const [showModal, setShowModal] = useState(false);
 
   let noteTitle = "";
@@ -42,6 +29,18 @@ const Desk = () => {
   //Adds new note to notes array
   const addNoteHandler = (e) => {
     if (noteTitle && noteText) {
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          noteId: uuidv4(),
+          noteTitle: noteTitle,
+          noteText: noteText,
+        }),
+      };
+
+      fetch("/user/addNote", requestOptions).then((res) => res.json());
+
       e.preventDefault();
       setNotes(
         notes.concat({
@@ -87,16 +86,22 @@ const Desk = () => {
   );
 
   return (
-    <Router>
-      <div className={classes.Desk}>
-        <Route path="/login" component={Login} />
-        <Route path="/notes">
-          <Row>{stickyNotes}</Row>
-          {modalForm}
-          <Button addNote={toggleModalHandler} />
-        </Route>
-      </div>
-    </Router>
+    <>
+      <Router>
+        <Navigation />
+        <div className={classes.Desk}>
+          <Route path="/" exact>
+            <h1>Home page</h1>
+          </Route>
+          <Route path="/login" component={Login} />
+          <Route path="/notes">
+            <Row>{stickyNotes}</Row>
+            {modalForm}
+            <Button addNote={toggleModalHandler} />
+          </Route>
+        </div>
+      </Router>
+    </>
   );
 };
 
